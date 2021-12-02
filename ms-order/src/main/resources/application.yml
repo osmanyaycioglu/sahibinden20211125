@@ -1,0 +1,44 @@
+app:
+  bounded-context: restaurant
+  domain: restaurant
+  microservice: order
+logging:
+  level:
+    com.training.spring.order.integration.restaurant: debug
+feign:
+  client:
+    config:
+      default:
+        error-decoder: com.training.spring.client.error.MyErrorDecoder
+        connect-timeout: 1000
+        read-timeout: 5000
+        logger-level: full
+        metrics:
+          enabled: true
+  httpclient:
+    enabled: true
+info:
+  app:
+    port: ${server.port}
+    version: '@project.version@'
+  osman:
+    ali: ali
+    deneme: osman
+server:
+  error:
+    include-binding-errors: always
+    include-exception: true
+    include-message: always
+  port: ${app.port:11000}
+spring:
+  application:
+    name: order
+  config:
+    import: configserver:http://127.0.0.1:8888
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
+        max-retries-on-next-service-instance: 3
+        max-retries-on-same-service-instance: 0
+        retry-on-all-operations: true

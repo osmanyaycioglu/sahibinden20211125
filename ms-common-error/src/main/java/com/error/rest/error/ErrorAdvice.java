@@ -32,6 +32,15 @@ public class ErrorAdvice {
                    .setCause(1000);
     }
 
+    @ExceptionHandler(MyFeignClientException.class)
+    @ResponseStatus(code = HttpStatus.BAD_GATEWAY)
+    public ErrorObj handleException(final MyFeignClientException exp) {
+        return this.generateErrorBase()
+                   .setMessage("Error while calling another MS")
+                   .addSubError(exp.getErrorObj())
+                   .setCause(8800);
+    }
+
     private ErrorObj generateErrorBase() {
         return new ErrorObj().setDomain(this.domain)
                              .setBoundedContext(this.boundedContext)

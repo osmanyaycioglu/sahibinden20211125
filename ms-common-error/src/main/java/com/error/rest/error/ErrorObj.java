@@ -12,11 +12,12 @@ public class ErrorObj {
     private String         message;
     private Integer        cause;
 
-    public void addSubError(final ErrorObj errorObjParam) {
+    public ErrorObj addSubError(final ErrorObj errorObjParam) {
         if (this.subErrorObjs == null) {
             this.subErrorObjs = new ArrayList<>();
         }
         this.subErrorObjs.add(errorObjParam);
+        return this;
     }
 
     public List<ErrorObj> getSubErrorObjs() {

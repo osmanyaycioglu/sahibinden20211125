@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.shared.Application;
+import com.netflix.discovery.shared.Applications;
 import com.training.spring.order.models.Order;
 import com.training.spring.restaurant.api.models.Meal;
 import com.training.spring.restaurant.api.models.Menu;
@@ -16,9 +20,38 @@ import com.training.spring.restaurant.api.models.MenuInfo;
 public class RestaurantMenuClient {
 
     @Autowired
-    private RestTemplate rt;
+    private RestTemplate           rt;
+    @Autowired
+    private IReastaurantMenuClient rmc;
+
+    @Autowired
+    private EurekaClient           eurekaClient;
+
+    public void name() {
+        Applications applicationsLoc = this.eurekaClient.getApplications();
+        List<Application> registeredApplicationsLoc = applicationsLoc.getRegisteredApplications();
+        for (Application applicationLoc : registeredApplicationsLoc) {
+            List<InstanceInfo> instancesLoc = applicationLoc.getInstances();
+            for (Application application2Loc : registeredApplicationsLoc) {
+
+            }
+        }
+    }
 
     public String calculateMenu(final Order orderParam) {
+        Menu menuLoc = new Menu();
+        List<Meal> listLoc = new ArrayList<>();
+        List<com.training.spring.order.rest.models.Meal> mealsLoc = orderParam.getMeals();
+        for (com.training.spring.order.rest.models.Meal mealLoc : mealsLoc) {
+            listLoc.add(new Meal().setMeal(mealLoc.getMeal())
+                                  .setAmount(mealLoc.getAmount()));
+        }
+        menuLoc.setMeals(listLoc);
+        MenuInfo menuInfoLoc = this.rmc.calculate(menuLoc);
+        return menuInfoLoc.getMessage() + " " + menuInfoLoc.getPrice();
+    }
+
+    public String calculateMenu2(final Order orderParam) {
         Menu menuLoc = new Menu();
         List<Meal> listLoc = new ArrayList<>();
         List<com.training.spring.order.rest.models.Meal> mealsLoc = orderParam.getMeals();
@@ -33,4 +66,6 @@ public class RestaurantMenuClient {
         return menuInfoLoc.getMessage() + " " + menuInfoLoc.getPrice();
     }
 
+
 }
+
