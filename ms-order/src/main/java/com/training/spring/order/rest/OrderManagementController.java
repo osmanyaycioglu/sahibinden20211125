@@ -2,6 +2,7 @@ package com.training.spring.order.rest;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,18 +13,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.training.spring.order.mappers.OrderObjectMapper;
 import com.training.spring.order.rest.models.OrderRestObj;
+import com.training.spring.order.service.OrderManagementService;
 
 @RestController
 @RequestMapping("/api/v1/order/management")
 public class OrderManagementController {
+
+    @Autowired
+    private OrderManagementService oms;
 
     @PostMapping("/place")
     public String place(@Validated @RequestBody final OrderRestObj order) {
         if (order.getHour() == 13) {
             // do
         }
-        return "OK";
+        return this.oms.placeOrder(OrderObjectMapper.toOrder(order));
     }
 
     @GetMapping("/remove/{oid}")
