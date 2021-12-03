@@ -4,7 +4,12 @@ app:
   microservice: order
 logging:
   level:
-    com.training.spring.order.integration.restaurant: debug
+    com:
+      training:
+        spring:
+          order:
+            integration:
+              restaurant: debug
 feign:
   client:
     config:
@@ -15,6 +20,9 @@ feign:
         logger-level: full
         metrics:
           enabled: true
+      RESTAURANT:
+        request-interceptors:
+        - com.training.spring.order.integration.restaurant.MyRequestInterceptor
   httpclient:
     enabled: true
 info:
@@ -42,3 +50,31 @@ spring:
         max-retries-on-next-service-instance: 3
         max-retries-on-same-service-instance: 0
         retry-on-all-operations: true
+      health-check:
+        initial-delay: 10000
+        interval: 2000
+resilience4j:
+  retry:
+    instances:
+      restaurantmenu:
+        max-attempts: 2
+        wait-duration: 100
+        result-predicate: com.training.spring.resilience.MyResultPredicate
+        retry-exception-predicate: com.training.spring.resilience.MyExceptionPredicate
+  circuitbreaker:
+    metrics:
+      enabled: true
+    instances:
+      cbrestaurant:
+        sliding-window-size: 20
+        sliding-window-type: count-based
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 30
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 5
+        max-wait-duration-in-half-open-state: 5s
+        automatic-transition-from-open-to-half-open-enabled: false
+        allow-health-indicator-to-fail: true
+        register-health-indicator: true
+        slow-call-duration-threshold: 500
+        slow-call-rate-threshold: 30

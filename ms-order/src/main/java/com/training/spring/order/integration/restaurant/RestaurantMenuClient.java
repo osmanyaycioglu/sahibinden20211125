@@ -16,6 +16,8 @@ import com.training.spring.restaurant.api.models.Meal;
 import com.training.spring.restaurant.api.models.Menu;
 import com.training.spring.restaurant.api.models.MenuInfo;
 
+import io.github.resilience4j.retry.annotation.Retry;
+
 @Service
 public class RestaurantMenuClient {
 
@@ -38,6 +40,7 @@ public class RestaurantMenuClient {
         }
     }
 
+    @Retry(name = "restaurantmenu")
     public String calculateMenu(final Order orderParam) {
         Menu menuLoc = new Menu();
         List<Meal> listLoc = new ArrayList<>();
@@ -51,6 +54,7 @@ public class RestaurantMenuClient {
         return menuInfoLoc.getMessage() + " " + menuInfoLoc.getPrice();
     }
 
+    @Retry(name = "restaurantmenu", fallbackMethod = "calculateMenuFallback")
     public String calculateMenu2(final Order orderParam) {
         Menu menuLoc = new Menu();
         List<Meal> listLoc = new ArrayList<>();
@@ -60,12 +64,16 @@ public class RestaurantMenuClient {
                                   .setAmount(mealLoc.getAmount()));
         }
         menuLoc.setMeals(listLoc);
-        MenuInfo menuInfoLoc = this.rt.postForObject("http://RESTAURANT/api/v1/restaurant/menu/calculate",
+        MenuInfo menuInfoLoc = this.rt.postForObject("http://RESTAURANT-API/api/v1/restaurant/menu/calculate",
                                                      menuLoc,
                                                      MenuInfo.class);
         return menuInfoLoc.getMessage() + " " + menuInfoLoc.getPrice();
     }
 
+    public String calculateMenuFallback(final Order orderParam,
+                                        final Throwable tht) {
+        return "Fallback yapıldı";
+    }
 
 }
 

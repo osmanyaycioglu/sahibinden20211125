@@ -21,18 +21,18 @@ public class MyErrorDecoder implements ErrorDecoder {
     public Exception decode(final String methodKeyParam,
                             final Response responseParam) {
         try {
+            if (responseParam.status() == 500) {
+                return new RetryableException(responseParam.status(),
+                                              "Internal server error",
+                                              null,
+                                              null,
+                                              responseParam.request());
+            }
             InputStream asInputStreamLoc = responseParam.body()
                                                         .asInputStream();
             ObjectMapper mapperLoc = new ObjectMapper();
             ErrorObj errorObjLoc = mapperLoc.readValue(asInputStreamLoc,
                                                        ErrorObj.class);
-            if (errorObjLoc.getCause() == 9000) {
-                return new RetryableException(responseParam.status(),
-                                              errorObjLoc.getMessage(),
-                                              null,
-                                              null,
-                                              responseParam.request());
-            }
             return new MyFeignClientException(errorObjLoc);
         } catch (Exception eLoc) {
             eLoc.printStackTrace();

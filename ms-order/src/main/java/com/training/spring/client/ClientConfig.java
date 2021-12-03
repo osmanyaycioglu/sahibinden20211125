@@ -37,6 +37,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableScheduling
+//@LoadBalancerClient(name = "default", configuration = LoadBalancerConfig.class)
 public class ClientConfig {
 
 
